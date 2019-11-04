@@ -1,13 +1,9 @@
-from keras.layers import Flatten
-#
-from keras.models import Model, load_model
-from keras.regularizers import l2
-from models.CenterVLAD_layer import CenterVLAD
-from keras.backend import l2_normalize, expand_dims
-# import sys
-# sys.path.append('.')
-from models.blocks import *
-
+from keras.applications.resnet50 import ResNet50
+from keras.applications.vgg16 import VGG16
+from keras.layers import GlobalAveragePooling2D, Dense
+from keras.models import Model
+from keras.optimizers import Adam
+# 显卡选择
 import tensorflow as tf
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
@@ -16,123 +12,23 @@ config = tf.ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.9 # 分配显存使用比例
 set_session(tf.Session(config=config))
 #
-def centerVLAD(shape=(128, 128, 1), n_channels=32, n_classes=116):
-    input_ = Input(shape=shape)
-    x = Conv2D(n_channels, (5, 5), padding='same')(input_)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = MaxPool2D(pool_size=(2, 2))(x)  # 64
 
-    x = Conv2D(16, (3, 3), padding='same')(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = MaxPool2D(pool_size=(2, 2))(x)  # 32
-
-    x = Conv2D(16, (3, 3), padding='same')(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = MaxPool2D(pool_size=(2, 2))(x)  # 16
-    #
-    # x = Conv2D(32, (3, 3), padding='same')(x)
-    # x = BatchNormalization()(x)
-    # x = Activation('relu')(x)
-    # x = MaxPool2D(pool_size=(2, 2))(x)  # 4
-
-    x = attention_block_c(x, encoder_depth=2)
-    # x = attention_block_c(x, encoder_depth=2)
-    # x = attention_block_c(x, encoder_depth=2)
-
-    x = Lambda(lambda a: l2_normalize(a,axis=-1), name='lambda1')(x)
-
-    x = CenterVLAD(num_clusters=n_classes)(x)
-
-    x = Lambda(lambda a: expand_dims(a,axis=1), name='lambda2')(x)
-    x = Lambda(lambda a: expand_dims(a,axis=1), name='lambda3')(x)
-    # x = conv2d_bn(x, 4096, 1, 1)
-
-    x = Flatten()(x)
-
-    # x = Conv2D(4096, kernel_size=(1, 1), padding='same')(x)
-    # x = GlobalAveragePooling2D()(x)
-
-    x = Lambda(lambda a: l2_normalize(a,axis=-1), name='feature')(x)
-
-    output = Dense(n_classes, activation='softmax')(x)
-    model = Model(input_, output)
-    return model
-
-
-def SEA(shape=(128, 128, 1), n_channels=32, n_classes=116):
-    input_ = Input(shape=shape)
-    x = Conv2D(n_channels, (5, 5), padding='same')(input_)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = MaxPool2D(pool_size=(2, 2))(x)  # 64
-
-    x = Conv2D(16, (3, 3), padding='same')(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = MaxPool2D(pool_size=(2, 2))(x)  # 32
-
-    x = Conv2D(16, (3, 3), padding='same')(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = MaxPool2D(pool_size=(2, 2))(x)  # 16
-
-    x = attention_block_c(x, encoder_depth=3)
-    x = attention_block_c(x, encoder_depth=3)
-    x = attention_block_c(x, encoder_depth=3)
-
+def ResNet50_train(classes=116):
+    base_model = ResNet50(weights=None, input_shape=(128,128,3), include_top=False)
+    x = base_model.output
     x = GlobalAveragePooling2D(name='feature')(x)
-    output = Dense(n_classes, activation='softmax')(x)
-
-    model = Model(input_, output)
+    x = Dense(classes, name='predictions', activation='softmax')(x)
+    model = Model(inputs=base_model.input, outputs=x)
+    adam = Adam(lr=0.0001)
+    model.compile(loss='sparse_categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
     return model
 
-def CenterVLAD_PLUS(shape=(128, 128, 1), n_channels=32, n_classes=116):
-    input_ = Input(shape=shape)
-    x = Conv2D(n_channels, (5, 5), padding='same')(input_)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = MaxPool2D(pool_size=(2, 2))(x)  # 64
-
-    x = Conv2D(16, (3, 3), padding='same')(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = MaxPool2D(pool_size=(2, 2))(x)  # 32
-
-    x = Conv2D(16, (3, 3), padding='same')(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = MaxPool2D(pool_size=(2, 2))(x)  # 16
-
-    x = attention_block_c(x, encoder_depth=3)
-    x = attention_block_c(x, encoder_depth=3)
-    x = attention_block_c(x, encoder_depth=3)
-
-    x = Conv2D(32, (3, 3), padding='same')(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = MaxPool2D(pool_size=(2, 2))(x)  # 8
-
-
-    x = Lambda(lambda a: l2_normalize(a, axis=-1), name='lambda1')(x)  # 22
-
-    x = CenterVLAD(num_clusters=n_classes)(x)  # 23
-    # # PCA
-    # x = Lambda(lambda a: expand_dims(a, axis=1), name='lambda2')(x)  # 24
-    # x = Lambda(lambda a: expand_dims(a, axis=1), name='lambda3')(x)  # 25
-    #
-    # x = Conv2D(2048, (1, 1), padding='same')(x)
-    # x = Flatten()(x)  # 27
-
-    x = Lambda(lambda a: l2_normalize(a, axis=-1), name='feature')(x)  # 27
-
-    output = Dense(n_classes, activation='softmax')(x)
-
-    model = Model(inputs=input_, outputs=output)
+def VGG16_train(classes=116):
+    base_model = VGG16(weights=None, input_shape=(128,128,3), include_top=False)
+    x = base_model.output
+    x = GlobalAveragePooling2D(name='feature')(x)
+    x = Dense(classes, name='predictions', activation='softmax')(x)
+    model = Model(inputs=base_model.input, outputs=x)
+    adam = Adam(lr=0.0001)
+    model.compile(loss='sparse_categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
     return model
-
-if __name__== '__main__':
-    model= CenterVLAD_PLUS()
-    print(model.summary())
