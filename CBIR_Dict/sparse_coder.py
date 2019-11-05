@@ -197,8 +197,8 @@ class cluster(object):
         # print("query = ", self.datasetn[q][0])
         print("query = ", self.Q[q])
         # dir1 = '/media/aparna/C6A2E75FA2E7530B/Users/admin/Documents/subset'
-        for i in self.clustern[ind]:
-            print(self.datasetn[i][0])
+        # for i in self.clustern[ind]:
+        #     print(self.datasetn[i][0])
         fig = plt.figure()
         img1 = skimage.io.imread(self.Q[q-1])
         a = fig.add_subplot(5, 3, 1)

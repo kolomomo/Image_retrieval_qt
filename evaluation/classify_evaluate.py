@@ -44,6 +44,7 @@ CLASS_MODE = 'categorical' #'sparse'
 COLOR_MODE = 'rgb' #'grayscale'
 val_path = '/home/wbo/Datasets/ir_test' # 测试集
 model_n = '/home/wbo/PycharmProjects/Image_retrieval_qt/models/save_m/ResNet50.h5' # 模型路径
+#
 
 datagen_test = image.ImageDataGenerator(
    rescale=1./255,

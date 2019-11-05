@@ -3,7 +3,6 @@ from sklearn.externals import joblib
 from scipy.cluster.vq import *
 from sklearn import preprocessing
 import numpy as np
-
 from pylab import *
 from PIL import Image
 from util.data import Database

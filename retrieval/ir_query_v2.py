@@ -97,6 +97,7 @@ def query_infer(q_sample, s_samples, depth=10, d_type='d1', P11=True):
   '''
   q_img, q_cls, q_hist = q_sample['img'], q_sample['cls'], q_sample['hist']
   results = []
+
   for idx, sample in enumerate(s_samples):
     s_img, s_cls, s_hist, s_cns = sample['img'], sample['cls'], sample['hist'], sample['cns']
     if q_img == s_img: # 相同的排除
@@ -105,8 +106,10 @@ def query_infer(q_sample, s_samples, depth=10, d_type='d1', P11=True):
                     'dis': distance(q_hist, s_hist, d_type=d_type),
                     'cls': s_cls,
                     'img': s_img,
-                    'cns': s_cns
+                    'cns': s_cns,
+                    'hist': s_hist
                   })
+
   results = sorted(results, key=lambda x: x['dis']) # 结果按距离排序
 
   if depth and depth <= len(results): # 返回深度

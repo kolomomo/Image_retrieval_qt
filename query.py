@@ -86,7 +86,15 @@ classes = sdb.get_class()
 ret = {c: [] for c in classes}
 all_ap = []   # 所有查询ap值
 P11 = []
+
+QE = 5 # 拓展查询值
+
 for k, query in enumerate(qsamlpe):
+    if QE:
+        ap, ar, p11, result = query_infer(query, s_samples=ssamlpe, depth=depth, d_type=d_type)
+        for i in range(QE):
+            query['hist'] = result[i]['hist'] + query['hist']
+        query['hist'] /= (QE + 1)
     ap, ar, p11, _ = query_infer(query, s_samples=ssamlpe, depth=depth, d_type=d_type)
     print('ap, ar, p11:', ap, ar, p11)
     all_ap.append(ap)
@@ -105,5 +113,5 @@ P11 = np.array(P11)
 print("MMAP", np.mean(cls_MAPs))
 print("all MAP", np.mean(all_ap))
 print('P11 mean:', np.mean(P11, axis=0))
-np.save('/home/wbo/PycharmProjects/Image_retrieval_qt/features/P11/{}_P11'.format(model_name), np.mean(P11, axis=0))
+# np.save('/home/wbo/PycharmProjects/Image_retrieval_qt/features/P11/{}_P11'.format(model_name), np.mean(P11, axis=0))
 print('finished')

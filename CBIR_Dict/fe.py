@@ -8,10 +8,9 @@ import time
 import os
 import pandas as pd
 
-train_csv = '/home/wbo/PycharmProjects/Image_retrieval_qt/datasets/ir_train.csv'
+train_csv = '/home/wbo/PycharmProjects/Image_retrieval_qt/datasets/ir_val_Q.csv' # 需要切分图像数据集
 images = pd.read_csv(train_csv)
-
-csvfile = open('/home/wbo/PycharmProjects/Image_retrieval_qt/CBIR_Dict/feature/features_S.csv', 'w')
+csvfile = open('/home/wbo/PycharmProjects/Image_retrieval_qt/CBIR_Dict/feature/features_Q.csv', 'w') # 保存的路径
 
 writer = csv.writer(csvfile, delimiter=',')
 
