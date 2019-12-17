@@ -5,20 +5,21 @@ from keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
 # from models.pre_models import VGG16_train
 # from models.my_models import AttentionResNet56
 # from models.my_models import ResNet50_CenterVLAD
-from models.my_models import CNNs
+# from models.my_models import SEA_Net_c
+from models.my_models import SEA_Net_X
 from util.data_gen import irdata_gen
 
 # configs TODO
-save_m = '/home/wbo/PycharmProjects/Image_retrieval_qt/models/save_m/CNNs.h5' # 保存训练模型路径
-save_h = '/home/wbo/PycharmProjects/Image_retrieval_qt/models/save_m/CNNs_train_history' # 保存训练历史路径
+save_m = '/home/wbo/PycharmProjects/Image_retrieval_qt/models/save_m/SEA_Net_X1.h5' # 保存训练模型路径
+save_h = '/home/wbo/PycharmProjects/Image_retrieval_qt/models/save_m/SEA_Net_X1_train_history' # 保存训练历史路径
 train_data_csv = '/home/wbo/PycharmProjects/Image_retrieval_qt/datasets/ir_train.csv'
 test_data_csv = '/home/wbo/PycharmProjects/Image_retrieval_qt/datasets/ir_test.csv'
 IMAGE_SIZE = 128
 BATCH = 32
 CLASS_MODE = 'sparse' #'sparse'
-COLOR_MODE = 'rgb' #'grayscale'
+COLOR_MODE = 'grayscale' #'grayscale'
 # 模型
-model = CNNs()
+model = SEA_Net_X(DE=True, SE=False)
 #
 
 train_gen, val_gen = irdata_gen(

@@ -200,7 +200,8 @@ def single_query_infer(q, s_samples, depth=10, d_type=1):
 
   q_hist = q
   results = []
-  d_types=['cosine', 'd2', 'd1']
+  d_types=['cosine', 'd2', 'd1', 'hausdorff']
+  print('use distance:', d_types[d_type])
   for idx, sample in enumerate(s_samples):
     s_img, s_cls, s_hist, s_cns = sample['img'], sample['cls'], sample['hist'], sample['cns']
 

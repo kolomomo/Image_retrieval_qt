@@ -7,8 +7,8 @@ from keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
 import numpy as np
 
 # 01
-save_m = '/home/wbo/PycharmProjects/Image_retrieval_qt/models/save_m/SECA.h5' # 保存训练模型路径
-save_h =  '/home/wbo/PycharmProjects/Image_retrieval_qt/models/save_m/SECA_train_history' # 保存训练历史路径
+save_m = '/home/wbo/PycharmProjects/Image_retrieval_qt/models/save_m/SECA2.h5' # 保存训练模型路径
+save_h =  '/home/wbo/PycharmProjects/Image_retrieval_qt/models/save_m/SECA2_train_history' # 保存训练历史路径
 train_data_csv = '/home/wbo/PycharmProjects/Image_retrieval_qt/datasets/ir_train.csv'
 test_data_csv = '/home/wbo/PycharmProjects/Image_retrieval_qt/datasets/ir_test.csv'
 IMAGE_SIZE = 128
@@ -35,7 +35,7 @@ tg = gender_new(train_gen)
 vg = gender_new(val_gen)
 
 # 模型
-model,model_p = SECA_Net(shape=(128,128,1), n_classes=116, lambda_center=0.002)
+model,model_p = SECA_Net(shape=(128,128,1), n_classes=116, lambda_center=2)
 print(model.summary())
 # prepare usefull callbacks
 ## 学习率调整

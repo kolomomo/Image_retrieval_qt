@@ -250,12 +250,7 @@
          </item>
          <item>
           <property name="text">
-           <string>AttentionResNet</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>CNNs</string>
+           <string>SECA</string>
           </property>
          </item>
         </widget>
@@ -282,6 +277,11 @@
          <item>
           <property name="text">
            <string>曼哈顿距离</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>豪斯多夫距离</string>
           </property>
          </item>
         </widget>

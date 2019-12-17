@@ -30,21 +30,23 @@ from util.data import Database
 #
 from models.my_models import CenterVLAD
 from keras.backend import l2_normalize, expand_dims
-#
+#0MMAP 0.6343613371830391 all MAP 0.8397149029347234
+#1MMAP 0.5914800377582923 all MAP 0.8205283262664536
+#MMAP 0.6564301422060463 all MAP 0.8487869585417427
 # configs TODO
 pick_layer = 'feature'    # 提取特征层名称
-model_name = 'ResNet50_CenterVLAD'
-model_path = '/home/wbo/PycharmProjects/Image_retrieval_qt/models/save_m/ResNet50_CenterVLAD.h5'
+model_name = 'SEA_Net_X2'
+model_path = '/home/wbo/PycharmProjects/Image_retrieval_qt/models/save_m/SEA_Net_X2.h5'
 image_size = 128
-COLOR_MODE = 'rgb'  # 'grayscale'/'rgb'
+COLOR_MODE = 'grayscale'  # 'grayscale'/'rgb'
 d_type = 'cosine'     # 距离类型
 depth = None        # 检索返回深度, None为返回全部, P11 需要设置depth=None
 #
 feature_path='./features'
 Q_PAYH = '/home/wbo/Datasets/ir_test' # 待检索数据集
-S_PATH = '/home/wbo/Datasets/ir_train' # 检索数据集
+S_PATH = '/home/wbo/Datasets/ir_train' # '/home/wbo/Project/SEA/datasets/ir_train_rescale_128' # 检索数据集
 save_Q_csv = '/home/wbo/PycharmProjects/Image_retrieval_qt/datasets/ir_test.csv'
-save_S_csv = '/home/wbo/PycharmProjects/Image_retrieval_qt/datasets/ir_train.csv'
+save_S_csv = '/home/wbo/PycharmProjects/Image_retrieval_qt/datasets/ir_train.csv' #'/home/wbo/Project/SEA/datasets/ir_train_rescale_128.csv'
 #
 
 if model_name == 'CenterVLAD' or 'ResNet50_CenterVLAD':
@@ -87,10 +89,12 @@ ret = {c: [] for c in classes}
 all_ap = []   # 所有查询ap值
 P11 = []
 
-QE = 5 # 拓展查询值
+QE = 0 # 拓展查询值
 
 for k, query in enumerate(qsamlpe):
+    print(query['cls'])
     if QE:
+        print('QE：', QE)
         ap, ar, p11, result = query_infer(query, s_samples=ssamlpe, depth=depth, d_type=d_type)
         for i in range(QE):
             query['hist'] = result[i]['hist'] + query['hist']

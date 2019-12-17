@@ -15,11 +15,12 @@ import tensorflow as tf
 import os
 
 #
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-from keras.backend.tensorflow_backend import set_session
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+from keras.backend.tensorflow_backend import set_session,clear_session
 config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.5 # 分配显存使用比例
+config.gpu_options.per_process_gpu_memory_fraction = 0.3 # 分配显存使用比例
 set_session(tf.Session(config=config))
+clear_session()
 #
 
 def AttentionResNet56(shape=(128, 128, 3), n_channels=64, n_classes=116,
@@ -222,6 +223,46 @@ def SEA_Net_c(shape=(128, 128, 1), n_channels=32, n_classes=116):
 
     return model
 
+def SEA_Net_X(shape=(128, 128, 1), n_channels=32, n_classes=116, DE=False, SE=False, dropout=0):
+    input_ = Input(shape=shape)
+    x = Conv2D(n_channels, (5, 5), padding='same')(input_)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = MaxPool2D(pool_size=(2, 2))(x)  # 64
+
+    x = Conv2D(16, (3, 3), padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = MaxPool2D(pool_size=(2, 2))(x)  # 32
+
+    x = Conv2D(16, (3, 3), padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = MaxPool2D(pool_size=(2, 2))(x)  # 16
+
+    x = attention_block_X(x, encoder_depth=3, include_de=DE, include_se=SE)
+    x = attention_block_X(x, encoder_depth=3, include_de=DE, include_se=SE)
+    x = attention_block_X(x, encoder_depth=3, include_de=DE, include_se=SE)
+
+    x = Conv2D(32, (3, 3), padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = MaxPool2D(pool_size=(2, 2))(x)  # 8
+
+    x = GlobalAveragePooling2D()(x)
+    x = Lambda(lambda a: l2_normalize(a, axis=-1), name='feature')(x)
+    if dropout:
+        x = Dropout(dropout)(x)
+    output = Dense(n_classes, activation='softmax')(x)
+
+    model = Model(input_, output)
+
+    adam = Adam(lr=0.0001)
+    # 编译
+    model.compile(loss='sparse_categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
+
+    return model
+
 def SECA_Net(shape=(128, 128, 1), n_channels=32, n_classes=116, lambda_center=0.02):
     input_ = Input(shape=shape)
     x = Conv2D(n_channels, (5, 5), padding='same')(input_)
@@ -297,7 +338,6 @@ def CenterVLAD_Net(shape=(128, 128, 1), n_channels=32, n_classes=116, dropout=0.
     x = Activation('relu')(x)
     x = MaxPool2D(pool_size=(2, 2))(x)  # 8
 
-
     x = Lambda(lambda a: l2_normalize(a, axis=-1), name='lambda1')(x)  # 22
 
     x = CenterVLAD(num_clusters=n_classes)(x)  # 23
@@ -307,6 +347,7 @@ def CenterVLAD_Net(shape=(128, 128, 1), n_channels=32, n_classes=116, dropout=0.
     #
     # x = Conv2D(2048, (1, 1), padding='same')(x)
     # x = Flatten()(x)  # 27
+
     x = Lambda(lambda a: l2_normalize(a, axis=-1), name='feature')(x)  # 27
     if dropout:
         x = Dropout(dropout)(x)
@@ -360,7 +401,7 @@ def CNNs(shape=(128, 128, 3), n_classes=116):
     return model
 
 if __name__=='__main__':
-    model= ResNet50_CenterVLAD()
+    model= CenterVLAD_Net()
     print(model.summary())
 
 

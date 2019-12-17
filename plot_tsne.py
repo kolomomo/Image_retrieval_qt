@@ -7,7 +7,7 @@ from six.moves import cPickle
 tsne = manifold.TSNE(n_components=2, init='pca', random_state=501)
 pca = PCA(n_components=5)
 
-samples = cPickle.load(open('/home/wbo/PycharmProjects/Image_retrieval_qt/features/CenterVLAD-feature-SData', "rb", True))
+samples = cPickle.load(open('/home/wbo/PycharmProjects/Image_retrieval_qt/features/TSECA-feature-SData', "rb", True))
 
 X = [s['hist'] for s in samples]
 y = [s['cls'] for s in samples]
@@ -23,11 +23,12 @@ for i in y:
     c.append(a.index(i))
 
 plt.figure(figsize=(10, 6))
-plt.scatter(x_norm[:,0], x_norm[:,1],c=c, s=2, cmap=plt.get_cmap('jet'))
+plt.scatter(x_norm[:,0], x_norm[:,1],c=c, s=8, cmap=plt.get_cmap('jet'))
 
 plt.colorbar()
 plt.xticks([])
 plt.yticks([])
-plt.text(0.5,-0.1,'λ=0',fontsize=16)
+plt.text(0.5,-0.15,'(b)',fontsize=16)
+
 # plt.savefig('./save/irtsne0')
 plt.show()

@@ -308,6 +308,58 @@ def attention_block_c(input, input_channels=None, output_channels=None, encoder_
 
     return output
 
+def attention_block_X(input, input_channels=None, output_channels=None, encoder_depth=1, include_de=True, include_se=False):
+
+    if input_channels is None:
+        input_channels = input.get_shape()[-1].value
+    if output_channels is None:
+        output_channels = input_channels
+
+    output_trunk = input
+    output_trunk = block_inception_c(output_trunk)
+
+    # Soft Mask Branch
+    ## encoder
+    ### first down sampling
+    # output_soft_mask = MaxPool2D(padding='same')(input)  # 32x32
+    if include_de:
+        output_soft_mask = input
+        skip_connections = []
+        for i in range(encoder_depth):
+            ## skip connections
+            output_skip_connection = conv2d_bn(output_soft_mask, 96, 3, 3)
+            skip_connections.append(output_skip_connection)
+            print ('skip shape:', output_skip_connection.get_shape())
+            ## down sampling
+            output_soft_mask = MaxPool2D(padding='same')(output_skip_connection)
+
+        ## decoder
+        skip_connections = list(reversed(skip_connections))
+        for i in range(encoder_depth):
+            ## upsampling
+            output_soft_mask = conv2d_bn(output_soft_mask, 96, 3, 3)
+            output_soft_mask = UpSampling2D()(output_soft_mask)
+            ## skip connections
+            print ('up skip shape:', output_soft_mask.get_shape())
+            output_soft_mask = Add()([output_soft_mask, skip_connections[i]])
+           ### last upsampling
+
+        ## Output
+        output_soft_mask = Conv2D(int(output_trunk.get_shape()[-1]), (1, 1))(output_soft_mask)
+        output_soft_mask = Activation('sigmoid')(output_soft_mask)
+
+        # Attention: (1 + output_soft_mask) * output_trunk
+        output = Lambda(lambda x: x + 1)(output_soft_mask)
+        output = Multiply()([output, output_trunk])  #
+    else:
+        output = output_trunk
+    if include_se:
+        # Last se Block
+        output = seblock(output)
+        # for i in range(p):
+        #     output = residual_block(output)
+    return output
+
 def block_inception_c(input):
     if K.image_data_format() == 'channels_first':
         channel_axis = 1

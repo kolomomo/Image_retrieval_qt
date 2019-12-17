@@ -42,9 +42,11 @@ class CenterVLAD(layers.Layer):
         a = tf.expand_dims(a,-2)
 
         # VLAD core.
-        # v = tf.math.square(tf.expand_dims(inputs,-1) -self.C)
-        v = tf.expand_dims(inputs,-1)+self.C
-        v = a*v
+        # v = tf.math.square(tf.expand_dims(inputs,-1) + self.C)
+        v = tf.expand_dims(inputs,-1)-self.C
+        # v = tf.expand_dims(inputs,-1)+self.C
+        v = (1.-a)*v
+        # v = a * v
         v = tf.reduce_sum(v,axis=[1,2])
         v = tf.transpose(v,perm=[0,2,1])
 

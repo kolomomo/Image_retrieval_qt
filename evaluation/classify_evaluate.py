@@ -41,9 +41,9 @@ set_session(tf.Session(config=config))
 IMAGE_SIZE = 128
 BATCH = 32
 CLASS_MODE = 'categorical' #'sparse'
-COLOR_MODE = 'rgb' #'grayscale'
+COLOR_MODE = 'grayscale' #'grayscale'
 val_path = '/home/wbo/Datasets/ir_test' # 测试集
-model_n = '/home/wbo/PycharmProjects/Image_retrieval_qt/models/save_m/ResNet50.h5' # 模型路径
+model_n = '/home/wbo/PycharmProjects/Image_retrieval_qt/models/save_m/SEA_Net_X1.h5' # 模型路径
 #
 
 datagen_test = image.ImageDataGenerator(
@@ -61,10 +61,10 @@ test_gender = datagen_test.flow_from_directory(
 )
 
 # CenterVLAD模型
-# model=load_model(model_n,
-#                  custom_objects={'CenterVLAD': CenterVLAD, 'l2_normalize':l2_normalize, 'expand_dims':expand_dims})
-
-model = load_model(model_n)
+model=load_model(model_n,
+                 custom_objects={'CenterVLAD': CenterVLAD, 'l2_normalize':l2_normalize, 'expand_dims':expand_dims})
+#
+# model = load_model(model_n)
 print(model.summary())
 result = model.predict_generator(test_gender, steps = test_gender.n // test_gender.batch_size+1)
 
