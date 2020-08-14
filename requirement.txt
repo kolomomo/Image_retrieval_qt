@@ -1,0 +1,7 @@
+keras
+opencv
+scikit-learn
+pillow
+pyqt5
+pyqt5-tools
+pandas
