@@ -1,0 +1,41 @@
+# 配置文件
+root_dir: D:\kolomomo\Image_retrieval_qt  # 实验根目录
+experiment_name: TEST2020 # 实验名称，更改文件夹名，新建一个文件夹保存实验相关数据
+# 数据集
+ir_train_dir: D:\kolomomo\irdata\train  # 数据集目录
+ir_val_dir: D:\kolomomo\irdata\train # 验证集
+ir_test_dir: D:\kolomomo\irdata\test # 测试集
+
+# model设置
+model_name: CenterVLAD_Net # 模型名称
+
+image_size: 128 # 图像大小
+input_shape: [128, 128, 1] # 模型输入shape
+n_channels: 64 # 卷积核数，详细作用参见网络结构
+n_classes: 5 # 输出类别数
+dropout: 0 # dropout参数， 默认0不使用
+
+# train
+batch_size: 32
+lr: 0.0001 # 初始学习率
+epoch: 50 # 迭代次数
+loss: sparse_categorical_crossentropy # 分类损失loss
+class_mode: sparse    # 标签类型 one of "binary", "categorical", "input", "multi_output", "raw", sparse" or None.
+color_mode: grayscale # 图像类型 one of "grayscale", "rgb", "rgba".
+
+# gpu使用
+gputouse: -1  # 选择gpus, 使用cpu设为-1，多块设为 0,1,2 ..
+
+# 检索
+pick_layer: feature    # 提取特征层名称
+d_type: cosine     # 距离类型
+depth: 0        # 检索返回深度, 0为返回全部, P11 需要设置depth=0
+q_path: D:\kolomomo\irdata\test # 待检索数据集
+q_name: QData
+s_path: D:\kolomomo\irdata\train # 检索数据集
+s_name: SData
+qe: 0 # 拓展查询值
+
+# QT
+show_layer: multiply_5 # 待显示特征层的层名
+retrieval_depth: 100 # 检索返回显示深度（图像数量）
